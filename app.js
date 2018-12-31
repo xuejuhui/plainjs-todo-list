@@ -9,11 +9,33 @@ document.addEventListener("DOMContentLoaded", function() {
             this.id = id
         }
     }
+    //Storage Class
+    class Storage {
+        static getTodo (){
+            let toDoList
+            if(localStorage.getItem('toDoList') === null ){
+                toDoList = []
+            }else {
+                toDoList = JSON.parse(localStorage.getItem('toDoList'))
+            }
+            return toDoList 
+        }
+        static addTodo (todo){
+            let items = Storage.getTodo()
+            items.push(todo)
+            localStorage.setItem('toDoList',JSON.stringify(items))
+        }
+        static removeTodo (id){
+            let items = Storage.getTodo()
+            let newItems = items.filter((item)=> item.id!=(id));
+            localStorage.setItem('toDoList',JSON.stringify(newItems))     
+        }
+    }
     // UI Class 
     class UI {
         static displayTodo (){
-            let todoList = [{title:'sss',description:'aaa',id:1},{title:'eee',description:'fff',id:2}]
-            todoList.forEach((todo)=> UI.addToTodoList(todo))
+            let items = Storage.getTodo()
+            items.forEach((todo)=> UI.addToTodoList(todo))
         }
         static addToTodoList(todo){
             let toDoListDom = document.querySelector('.todos-list')
@@ -40,13 +62,21 @@ document.addEventListener("DOMContentLoaded", function() {
         e.preventDefault()
         let title = document.querySelector('#title').value
         let description = document.querySelector('#description').value
-        let id = document.querySelector('#todo-id').value
+        let id = document.querySelector('#todo-id').value * (Math.random() * (1000 - 0) + 0 )
+        // console.log(id)
+        // if(id==NaN){
+        //     console.log('hi')
+        //     id = Math.random() * (Math.random() * (1000 - 0) + 0 )
+        // }
+
         let todo = new Todo(title, description, id) 
         UI.addToTodoList(todo)
+        Storage.addTodo(todo)
     })
     // Event Delete todo
     let toDoListDom = document.querySelector('.todos-list')
     toDoListDom.addEventListener('click',(e)=>{
         UI.deleteTodo(e.target)
+        Storage.removeTodo(e.target.parentElement.previousElementSibling.textContent)
     })
 });
